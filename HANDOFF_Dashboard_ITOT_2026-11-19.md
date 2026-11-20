@@ -4,7 +4,7 @@
 
 **Repositorio:** `dashboard_frontend`.
 
-**Rama / HEAD:** `master` / `f6e89ad` (`Initial commit`); remoto `origin/master` en el mismo commit.
+**Rama / HEAD:** `master`; base de la inspección `f6e89ad` (`Initial commit`); HEAD actual: consultar `git log -1`.
 
 **Estado del árbol al iniciar:** solo `README.md` trackeado; `Reto_ITOT_Arquitectura_Consolidada.md` sin seguimiento.
 
@@ -48,8 +48,8 @@ Comprobado con `git status --short`, `git log --oneline`, `git ls-files` y `find
 | `Reto_ITOT_Arquitectura_Consolidada.md` | Sin seguimiento al iniciar; 9 223 bytes al iniciar; documento técnico consolidado del proyecto. Se actualiza en esta ronda. |
 | `fixtures/telemetry-INTEGRACION-001.json` | Nuevo en esta ronda; datos de ejemplo para desarrollo y simulación. |
 | Código de aplicación | No existe. No hay `src/`, `web/`, `app/`, `server.py`, `package.json`, `requirements.txt`, `Dockerfile`, `docker-compose.yml`, `index.html` ni pruebas. |
-| Historial | Un solo commit: `f6e89ad` `Initial commit`; solo añade `README.md`. |
-| Remoto | `https://github.com/A01752310/dashboard_frontend.git`; `master` y `origin/master` apuntan a `f6e89ad`. |
+| Historial al iniciar | Un solo commit: `f6e89ad` `Initial commit`; solo añade `README.md`. |
+| Remoto | `https://github.com/A01752310/dashboard_frontend.git`; al iniciar, `master` y `origin/master` apuntaban a `f6e89ad`. |
 
 **Consecuencia:** en este repositorio no hay puntos de entrada ni comandos de arranque que ejecutar. Cualquier comando de backend, Historian o frontend que se documente más abajo es **propuesto**, salvo que se indique expresamente como verificado.
 
@@ -711,12 +711,13 @@ curl -sS -D - 'http://192.168.20.20:8081/telemetry?limit=50&run_id=CORRIDA-QUE-N
 
 ```text
 Repositorio: /home/angerchy/Projects/Ciberseguridad/proyecto/dashboard_frontend
-Rama master, HEAD f6e89ad. Lee HANDOFF_Dashboard_ITOT_2026-11-19.md y
-Reto_ITOT_Arquitectura_Consolidada.md. Implementa solo la pantalla única y el
-proxy mismo origen descritos; empieza por el fixture y la máquina de estados,
-sin montaje físico. No inventes el significado de piston1_act/piston2_act/
-piston3_act ni muestres “PLC desconectado”. Verifica con el fixture/mock y deja
-AC-11 pendiente hasta tener acceso a 192.168.20.20:8081.
+Rama master; base f6e89ad; consulta `git log -1` para el HEAD actual. Lee
+HANDOFF_Dashboard_ITOT_2026-11-19.md y Reto_ITOT_Arquitectura_Consolidada.md.
+Implementa solo la pantalla única y el proxy mismo origen descritos; empieza
+por el fixture y la máquina de estados, sin montaje físico. No inventes el
+significado de piston1_act/piston2_act/piston3_act ni muestres “PLC
+desconectado”. Verifica con el fixture/mock y deja AC-11 pendiente hasta tener
+acceso a 192.168.20.20:8081.
 ```
 
 ---
