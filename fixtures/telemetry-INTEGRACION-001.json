@@ -1,0 +1,28 @@
+[
+  {
+    "id": 2,
+    "run_id": "INTEGRACION-001",
+    "source": "PLC-SIEMENS-01",
+    "seq": 2,
+    "timestamp": "2026-11-19T21:40:05Z",
+    "received_at": "2026-11-19T21:40:05Z",
+    "variables": {
+      "piston1_act": true,
+      "piston2_act": false,
+      "piston3_act": false
+    }
+  },
+  {
+    "id": 1,
+    "run_id": "INTEGRACION-001",
+    "source": "PLC-SIEMENS-01",
+    "seq": 1,
+    "timestamp": "2026-11-19T21:40:00Z",
+    "received_at": "2026-11-19T21:40:00Z",
+    "variables": {
+      "piston1_act": false,
+      "piston2_act": false,
+      "piston3_act": false
+    }
+  }
+]
