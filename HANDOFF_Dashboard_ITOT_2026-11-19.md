@@ -4,11 +4,11 @@
 
 **Repositorio:** `dashboard_frontend`.
 
-**Rama / HEAD:** `master`; base de la inspección `f6e89ad` (`Initial commit`); HEAD actual: consultar `git log -1`.
+**Rama de entrega:** `handoff/dashboard-itot-prototipo`, creada desde `master` (`df0e3fe`); base de la inspección original `f6e89ad` (`Initial commit`); HEAD actual: `git log -1`.
 
 **Estado del árbol al iniciar:** solo `README.md` trackeado; `Reto_ITOT_Arquitectura_Consolidada.md` sin seguimiento.
 
-**Alcance de esta ronda:** inspección y documentación. No se implementó backend, frontend ni Historian.
+**Alcance de esta ronda:** inspección, documentación y preparación del handoff para la rama de entrega. No se implementó backend, frontend ni Historian.
 
 ## Leyenda de evidencia
 
@@ -46,7 +46,7 @@ Comprobado con `git status --short`, `git log --oneline`, `git ls-files` y `find
 |---|---|
 | `README.md` | Trackeado. Contenido literal: `wisol beibi wisol beibi` (24 bytes). No describe el proyecto. |
 | `Reto_ITOT_Arquitectura_Consolidada.md` | Sin seguimiento al iniciar; 9 223 bytes al iniciar; documento técnico consolidado del proyecto. Se actualiza en esta ronda. |
-| `fixtures/telemetry-INTEGRACION-001.json` | Nuevo en esta ronda; datos de ejemplo para desarrollo y simulación. |
+| `fixtures/telemetry-INTEGRACION-001.json` | Nuevo en esta ronda; datos de prueba para el modo de datos simulados. |
 | Código de aplicación | No existe. No hay `src/`, `web/`, `app/`, `server.py`, `package.json`, `requirements.txt`, `Dockerfile`, `docker-compose.yml`, `index.html` ni pruebas. |
 | Historial al iniciar | Un solo commit: `f6e89ad` `Initial commit`; solo añade `README.md`. |
 | Remoto | `https://github.com/A01752310/dashboard_frontend.git`; al iniciar, `master` y `origin/master` apuntaban a `f6e89ad`. |
@@ -66,6 +66,8 @@ No forman parte del entregable, pero se inspeccionaron para no confundir contrat
 | `/home/angerchy/Projects/firewall-lab-baseline/Proyecto_Conexion_IT-OT/Reto_ITOT_baseline_2026-11-10.md` | Baseline del cierre físico anterior. | Comandos y evidencia del flujo de laboratorio del 10 de noviembre. | No corresponde al stack PLC real + Historian Alpine actual; los comandos citados no se reejecutaron en esta ronda. |
 | `/home/angerchy/Projects/firewall-lab-baseline/itot-mvp-telemetria/` | MVP OPC UA + InfluxDB en Docker. | Existió otro prototipo con `docker compose`, pero de otra arquitectura. | No usa MQTT/PLC real, no usa SQLite y su `src/dashboard.py` solo imprime mensajes MQTT en stdout; no hay UI que reutilizar. |
 | `/home/angerchy/Projects/firewall-lab-baseline/itot-integracion-fisica-v1/GUIA.md` | Guía de integración física KVM/libvirt. | Procedimientos de laboratorio y advertencias de alcance. | No es una aplicación ni un servidor de dashboard. |
+
+Las rutas absolutas de `firewall-lab-baseline` son del equipo del autor y quedan fuera de este repositorio; un clon del compañero no las necesita para implementar el prototipo.
 
 **Búsqueda de la implementación actual:** no se localizó `it_historian_service.py`, `it_query_client.py` ni `ot_plc_publisher.py` en el repositorio ni en el árbol de trabajo. La búsqueda de `piston1_act`/`received_at` solo devolvió el documento consolidado y el texto de esta solicitud, no código. Por tanto, la implementación de `/telemetry` **no está disponible** para inspección.
 
@@ -111,23 +113,25 @@ El tópico se conserva como **`planta/telemetria/integracion`**.
 
 | Campo | Tipo esperado | Confirmación | Uso en la pantalla |
 |---|---|---|---|
-| `id` | entero (asumido) | El equipo confirmó que existe; no dio sus valores ni su tipo exacto. | Clave interna; no se muestra. |
-| `run_id` | string | Confirmado; valor de ejemplo `INTEGRACION-001`. | Filtro y agrupación. |
-| `source` | string | Confirmado; valor de ejemplo `PLC-SIEMENS-01`. | Agrupación; se muestra en el encabezado si hay más de una fuente. |
+| `id` | entero | Confirmado por el equipo: `2` para `seq=2` y `1` para `seq=1`. | Clave interna; no se muestra. |
+| `run_id` | string | Confirmado; corrida de referencia `INTEGRACION-001`. | Filtro y agrupación. |
+| `source` | string | Confirmado; `PLC-SIEMENS-01`. | Agrupación; se muestra en el encabezado si hay más de una fuente. |
 | `seq` | entero | Confirmado; valores 1 y 2. | Orden y deduplicación. |
 | `timestamp` | string ISO 8601 UTC | Confirmado; `2026-11-19T21:40:00Z` y `2026-11-19T21:40:05Z`. | Hora de la señal en tabla y carriles. |
-| `received_at` | string ISO 8601 (asumido) | El equipo confirmó que existe; no dio sus valores ni su formato exacto. | Hora de recepción y cálculo de edad; se muestra en la tabla. |
-| `variables` | objeto | Confirmado. | Contiene los tres booleanos. |
+| `received_at` | string ISO 8601 con microsegundos y offset | Confirmado por el equipo: `2026-11-19T21:40:00.385000+00:00` y `2026-11-19T21:40:05.412000+00:00`. | Hora de recepción y cálculo de edad; se muestra en la tabla. |
+| `variables` | objeto | Confirmado; contiene los tres booleanos. | Contiene los tres booleanos. |
+
+Estos valores provienen de los dos registros que el equipo proporcionó el 2026-11-19. Son un ejemplo de referencia, **no una captura HTTP verificada en esta ronda**; la validación directa de la API sigue pendiente (AC-11).
 
 Los tres campos booleanos confirmados son `piston1_act`, `piston2_act` y `piston3_act`. El equipo no confirmó que sean los únicos campos de `variables`; la UI debe ignorar cualquier otro campo sin fallar.
 
 **Registros de referencia (Equipo):**
 
 - `INTEGRACION-001` / `PLC-SIEMENS-01`, corrida del `2026-11-19`.
-- `seq=1`, `timestamp=2026-11-19T21:40:00Z`, las tres señales en `false`.
-- `seq=2`, `timestamp=2026-11-19T21:40:05Z`, solo `piston1_act` en `true`; `piston2_act` y `piston3_act` en `false`.
+- `seq=1`: `id=1`, `timestamp=2026-11-19T21:40:00Z`, `received_at=2026-11-19T21:40:00.385000+00:00`, las tres señales en `false`.
+- `seq=2`: `id=2`, `timestamp=2026-11-19T21:40:05Z`, `received_at=2026-11-19T21:40:05.412000+00:00`, solo `piston1_act` en `true`; `piston2_act` y `piston3_act` en `false`.
 
-**Fixture:** `fixtures/telemetry-INTEGRACION-001.json`, en orden documentado de la API (más reciente primero). Los valores de `id` (2 y 1) y `received_at` (iguales a `timestamp`) son **placeholders de ejemplo**; el equipo no los proporcionó. El fixture no debe presentarse como respuesta real capturada.
+**Fixture:** `fixtures/telemetry-INTEGRACION-001.json`, en orden documentado de la API (más reciente primero). Reproduce los dos registros con los valores de `id` y `received_at` proporcionados por el equipo. No es una captura HTTP: la validación directa de la API sigue pendiente (AC-11).
 
 ### 2.2 Comportamiento documentado de la API
 
@@ -151,11 +155,11 @@ Los tres campos booleanos confirmados son `piston1_act`, `piston2_act` y `piston
 | Código de `it_historian_service.py` en el repo | **No existe.** `git ls-files` solo devuelve `README.md`; no hay `src/` ni `server.py`. |
 | Código en el árbol de trabajo | **No localizado.** Búsqueda por nombre y por `piston1_act`/`received_at` sin coincidencias de código. |
 | Prueba contra la API real | **No ejecutada.** `curl --max-time 3 http://192.168.20.20:8081/health` desde este equipo: `Connection timed out`; el host no tiene interfaz en `192.168.20.0/24` (`ip -br addr`). |
-| Forma del arreglo y valores | **Verificada solo contra el fixture**, no contra la API. |
+| Forma del arreglo y valores | **Verificada solo contra el fixture**, no contra la API. El fixture reproduce los `id`, `received_at` y booleanos proporcionados por el equipo. |
 | Orden, `limit`, filtro y respuesta vacía | **No verificados** contra la implementación. Quedan como contrato documentado + comportamiento defensivo del cliente. |
 | `/health` | **Documentado**, no verificado. |
 
-**Conclusión:** no se puede afirmar que la API real cumpla el contrato. Se puede afirmar que el fixture cumple la forma confirmada por el equipo y que el cliente debe tolerar las variaciones descritas.
+**Conclusión:** no se puede afirmar que la API real cumpla el contrato. Se puede afirmar que el fixture cumple la forma y los valores de referencia proporcionados por el equipo, y que el cliente debe tolerar las variaciones descritas. La coincidencia con la respuesta HTTP real se comprueba en AC-11.
 
 ### 2.4 Reglas de normalización
 
@@ -306,7 +310,7 @@ No se requiere TLS para la demo: el PDF documenta HTTP 8081 sin TLS y la red IT 
 | Estado de consulta: [En línea | Esperando datos | Consulta interrumpida]          |
 | Última consulta: 21:40:06Z   Último registro: 21:40:05Z   Edad: 1 s               |
 +----------------------------------------------------------------------------------+
-| [ MODO SIMULACIÓN — datos de ejemplo, no provienen del PLC ]   (solo si aplica)  |
+| [ Datos simulados — modo simulación; no provienen del PLC ]      (solo si aplica)  |
 +----------------------------------------------------------------------------------+
 | SEÑALES                                                                           |
 |  +---------------------+  +---------------------+  +---------------------+        |
@@ -376,7 +380,7 @@ Cada tarjeta contiene:
 - `Esperando datos` — última consulta HTTP 200 con arreglo vacío.
 - `Sin datos nuevos` — nota secundaria cuando la API responde `[]` pero ya había datos; no sustituye a `Esperando datos`.
 - `Consulta interrumpida` — timeout, error de red, no-2xx, JSON inválido.
-- `Simulación` — modo explícito; no es un estado de red.
+- `Datos simulados` — modo explícito; no es un estado de red.
 
 **Prohibido:**
 
@@ -455,7 +459,7 @@ No hacer más de un reintento de fallback por consulta. Si coinciden dos causas 
 - Mantener un búfer de hasta **50 registros únicos**.
 - Al fusionar, ordenar por `timestamp` ascendente y, si empatan, por `seq` ascendente.
 - La tabla muestra el búfer en orden descendente.
-- No deduplicar por `id`: el `id` no es la clave funcional confirmada.
+- No deduplicar por `id`: la clave funcional del contrato es `run_id + source + seq`; `id` es solo un identificador de fila.
 - Al cambiar `RUN_ID` o al recargar, reiniciar el búfer.
 
 ### 5.5 Máquina de estados
@@ -467,7 +471,7 @@ No hacer más de un reintento de fallback por consulta. Si coinciden dos causas 
 | `ESPERANDO` | Última consulta 200 con `[]`; no hay datos previos. | `Sin lectura` | `Esperando datos` | `Sin registros para la corrida` |
 | `SIN_DATOS_NUEVOS` | Última consulta 200 con `[]`; había datos previos. | Se conservan las últimas tarjetas. | `Esperando datos` + `Sin datos nuevos` | Se conserva. |
 | `INTERRUMPIDA` | Timeout, error de red, no-2xx, JSON inválido o no-array. | Se conservan; si nunca hubo datos, `Sin lectura`. | `Consulta interrumpida` + `Última lectura: ...` | Se conserva. |
-| `SIMULACION` | `?sim=1` o `SIMULATION=true`. | Según el guion de simulación. | `Simulación` + banner. | Poblada con el fixture. |
+| `SIMULACION` | `?sim=1` o `SIMULATION=true`. | Según el guion de datos simulados. | `Datos simulados` + banner. | Poblada con el fixture. |
 
 **Regla de conservación:** un fallo nunca borra la última lectura. Se conserva el último valor y su hora; se muestra la edad. Un `200 []` tampoco borra el historial previo: indica que no hay datos nuevos en esa consulta.
 
@@ -480,15 +484,15 @@ No hacer más de un reintento de fallback por consulta. Si coinciden dos causas 
 - **Fallo en el arranque:** si nunca hubo datos, las tarjetas muestran `Sin lectura` y el banner `Consulta interrumpida`; no se muestra un estado de PLC.
 - **Error de contrato:** si el cuerpo es un objeto con `records`, un HTML de error o un arreglo de tipos incorrectos, se trata como interrumpida y se registra `error de contrato` en la consola; no se intenta adivinar.
 
-### 5.7 Modo simulación
+### 5.7 Modo de datos simulados
 
 - Activación explícita: `?sim=1` o `SIMULATION: true` en `config.js`.
-- Banner permanente y visible: `MODO SIMULACIÓN — datos de ejemplo, no provienen del PLC`.
-- Fuente: `fixtures/telemetry-INTEGRACION-001.json`. Para que la simulación funcione sin red, embeber los dos registros en `app.js` o cargarlos desde el mismo origen; en ningún caso se hace una petición a `/api` ni al Historian.
+- Banner permanente y visible: `Datos simulados — modo simulación; no provienen del PLC`.
+- Fuente: `fixtures/telemetry-INTEGRACION-001.json`. Para que el modo funcione sin red, embeber los dos registros en `app.js` o cargarlos desde el mismo origen; en ningún caso se hace una petición a `/api` ni al Historian.
 - Guion: a los 0 s se muestra `seq=1` (tres señales inactivas); a los 5 s se añade `seq=2` (`piston1_act` activo). El búfer conserva ambos; la tabla queda con `seq=2` arriba.
-- La edad en simulación se muestra como `No aplica (simulación)`; no se calcula contra el reloj actual, porque los datos son históricos y no “en vivo”.
-- Si se intenta salir del modo simulación, se requiere cambiar el parámetro/config y recargar; **no hay fallback automático** al fixture cuando la API falla.
-- El modo simulación debe poder probarse sin red y sin el Historian.
+- La edad se muestra como `No aplica (datos simulados)`; no se calcula contra el reloj actual, porque los datos son históricos y no “en vivo”.
+- Si se intenta salir del modo de datos simulados, se requiere cambiar el parámetro/config y recargar; **no hay fallback automático** al fixture cuando la API falla.
+- El modo de datos simulados debe poder probarse sin red y sin el Historian.
 
 ### 5.8 Lo que el prototipo no hace
 
@@ -547,11 +551,11 @@ Todos los criterios se prueban primero contra el fixture/mock local. Los que req
 - **Entonces:** la tabla y los carriles muestran una sola fila para `run_id=INTEGRACION-001`, `source=PLC-SIEMENS-01`, `seq=1`; el número de filas no crece.
 - **Evidencia:** respuesta del mock, filas renderizadas.
 
-### AC-07 — Simulación
+### AC-07 — Datos simulados
 
 - **Dado:** se abre `?sim=1` (o `SIMULATION=true`).
 - **Cuando:** se carga la página.
-- **Entonces:** el banner `MODO SIMULACIÓN — datos de ejemplo, no provienen del PLC` es visible; no hay peticiones a `/api` ni al Historian; a los 0 s se ve `seq=1`; a los 5 s se ve `seq=2`; la tabla muestra 2 filas; la edad dice `No aplica (simulación)`; si la API real está caída, la simulación sigue funcionando y no se muestra como “En línea”.
+- **Entonces:** el banner `Datos simulados — modo simulación; no provienen del PLC` es visible; no hay peticiones a `/api` ni al Historian; a los 0 s se ve `seq=1`; a los 5 s se ve `seq=2`; la tabla muestra 2 filas; la edad dice `No aplica (datos simulados)`; si la API real está caída, los datos simulados siguen funcionando y no se muestran como “En línea”.
 - **Evidencia:** captura, Network vacío de `/api`, tabla.
 
 ### AC-08 — Filtro de corrida
@@ -578,7 +582,7 @@ Todos los criterios se prueban primero contra el fixture/mock local. Los que req
 
 - **Dado:** la laptop IT `192.168.20.10` con acceso al Historian `192.168.20.20:8081`.
 - **Cuando:** se ejecutan `GET /health` y `GET /telemetry?limit=50&run_id=INTEGRACION-001`.
-- **Entonces:** se registran código, cabeceras y cuerpo; el cuerpo es un arreglo; los campos y los tres booleanos coinciden; se documenta el orden real, si `limit` y `run_id` se aplican y qué devuelve una corrida vacía.
+- **Entonces:** se registran código, cabeceras y cuerpo; el cuerpo es un arreglo; los campos, los `id`/`received_at` y los tres booleanos coinciden con los valores de referencia del equipo, o se documenta cualquier diferencia; se documenta el orden real, si `limit` y `run_id` se aplican y qué devuelve una corrida vacía.
 - **Evidencia:** transcripción de `curl` o captura de DevTools, con fecha y hora.
 - **Estado:** no ejecutado en esta ronda; el host de trabajo no está en `192.168.20.0/24` y el intento a `/health` agotó el tiempo.
 
@@ -630,7 +634,7 @@ dashboard_frontend/
 |---|---|---|---|---|
 | D-01 | ¿La demo se sirve desde la laptop IT o desde el Historian? | Laptop IT `.20.10` con proxy loopback (Opción A). | `server.py`, runbook de demo. | Confirmar Python 3 y puerto 8080 libre en la laptop; permiso para ejecutar un servidor local. |
 | D-02 | ¿La API real respeta `limit`, `run_id` y devuelve `200 []`? | Implementar el contrato documentado + fallback; probar en cuanto haya acceso. | AC-08 y la confianza en el filtro. | Un `GET /telemetry` real desde `.20.10`. |
-| D-03 | ¿Cuáles son los valores y formatos reales de `id` y `received_at`? | El fixture usa placeholders; la UI acepta ISO 8601 y tolera ausencia. | Edad exacta y tabla final. | Respuesta HTTP completa de los dos registros. |
+| D-03 | ¿La API real devuelve exactamente los `id` y `received_at` proporcionados por el equipo? | Usar esos valores como referencia del fixture; la UI acepta ISO 8601 con microsegundos y offset y tolera ausencia. | La coincidencia exacta con la respuesta HTTP; no bloquea el modo de datos simulados. | Respuesta HTTP directa de los dos registros (AC-11). |
 | D-04 | ¿Qué significa físicamente cada pistón? | No mostrarlo; usar solo `Señal activa/inactiva` y dejar la nota. | Textos finales y narrativa de la demo. | Confirmación del equipo/TIA Portal. |
 | D-05 | ¿Qué `run_id` se usará en la demo: `INTEGRACION-001` o uno nuevo? | Configurable; `INTEGRACION-001` por defecto para simulación; `?run_id=` para la corrida real. | Capturas y filtro por defecto. | Decidir el run_id de la demo. |
 | D-06 | ¿Se autoriza modificar `it_historian_service.py` para servir la UI (Opción B)? | No para esta ronda; solo si no hay Python en la laptop. | Opción B. | Revisión del dueño del Historian y respaldo. |
@@ -642,24 +646,26 @@ dashboard_frontend/
 
 ## 9. Comandos verificados y no verificados
 
-### 9.1 Verificados en esta ronda
+### 9.1 Verificados en la inspección original
+
+Los comandos se ejecutaron desde la raíz del repositorio; los resultados son históricos y no se reproducen literalmente en el clon actual.
 
 ```sh
 # Estado inicial del repositorio, antes de crear este handoff y el fixture
-git -C /home/angerchy/Projects/Ciberseguridad/proyecto/dashboard_frontend status --short
+git status --short
 # → ?? Reto_ITOT_Arquitectura_Consolidada.md
 
-git -C /home/angerchy/Projects/Ciberseguridad/proyecto/dashboard_frontend log --oneline -1
+git log --oneline -1
 # → f6e89ad Initial commit
 
-git -C /home/angerchy/Projects/Ciberseguridad/proyecto/dashboard_frontend ls-files
+git ls-files
 # → README.md
 
-# Búsqueda de la implementación actual
+# Búsqueda de la implementación actual en el entorno del autor (fuera del repo)
 find /home/angerchy -name 'it_historian_service.py' -o -name 'ot_plc_publisher.py' -o -name 'it_query_client.py'
 # → sin resultados
 
-# Demo anterior: contrato distinto
+# Demo anterior del laboratorio del autor (fuera del repo): contrato distinto
 sha256sum /home/angerchy/Projects/firewall-lab-baseline/Proyecto_Conexion_IT-OT/cierre-flujo_itot-COMPLETO-001.py
 # → 506f5030c90579e8950504ee75020200306e824d3634240476bd87cb08c9ead5
 grep -nE "path.path ==|/telemetry|/records|/health" /home/angerchy/Projects/firewall-lab-baseline/Proyecto_Conexion_IT-OT/cierre-flujo_itot-COMPLETO-001.py
@@ -690,8 +696,7 @@ ip -br addr
 ### 9.3 Comandos propuestos para la siguiente ronda
 
 ```sh
-# Servidor del dashboard (cuando exista)
-cd /home/angerchy/Projects/Ciberseguridad/proyecto/dashboard_frontend
+# Servidor del dashboard (cuando exista), desde la raíz del clon
 HISTORIAN_URL=http://192.168.20.20:8081 \
   python3 server.py --bind 127.0.0.1 --port 8080 --web ./web
 
@@ -710,21 +715,18 @@ curl -sS -D - 'http://192.168.20.20:8081/telemetry?limit=50&run_id=CORRIDA-QUE-N
 ## 10. Prompt corto para el siguiente agente
 
 ```text
-Repositorio: /home/angerchy/Projects/Ciberseguridad/proyecto/dashboard_frontend
-Rama master; base f6e89ad; consulta `git log -1` para el HEAD actual. Lee
-HANDOFF_Dashboard_ITOT_2026-11-19.md y Reto_ITOT_Arquitectura_Consolidada.md.
-Implementa solo la pantalla única y el proxy mismo origen descritos; empieza
-por el fixture y la máquina de estados, sin montaje físico. No inventes el
-significado de piston1_act/piston2_act/piston3_act ni muestres “PLC
-desconectado”. Verifica con el fixture/mock y deja AC-11 pendiente hasta tener
-acceso a 192.168.20.20:8081.
+Repositorio: clon local de dashboard_frontend.
+Rama de entrega: handoff/dashboard-itot-prototipo. Crea tu propia rama de implementación a partir de ella. Lee HANDOFF_Dashboard_ITOT_2026-11-19.md, fixtures/telemetry-INTEGRACION-001.json y Reto_ITOT_Arquitectura_Consolidada.md con rutas relativas.
+Implementa solo la pantalla única y el proxy mismo origen; empieza por el fixture y la máquina de estados, sin montaje físico.
+No inventes el significado de piston1_act/piston2_act/piston3_act ni muestres “PLC desconectado”.
+Verifica con el fixture/mock y deja AC-11 pendiente hasta tener acceso a 192.168.20.20:8081.
 ```
 
 ---
 
 ## 11. Skills para las siguientes fases
 
-Inventario consultado: `/home/angerchy/Projects/hermes-local/SKILLS-INVENTORY.md`. Ninguna skill candidata se instaló en esta ronda.
+Inventario consultado en el entorno del autor: `hermes-local/SKILLS-INVENTORY.md` (fuera de este repo). Ninguna skill candidata se instaló en esta ronda.
 
 | Fase | Skill sugerida | Estado | Uso |
 |---|---|---|---|
@@ -752,7 +754,7 @@ Ruta: `fixtures/telemetry-INTEGRACION-001.json`.
     "source": "PLC-SIEMENS-01",
     "seq": 2,
     "timestamp": "2026-11-19T21:40:05Z",
-    "received_at": "2026-11-19T21:40:05Z",
+    "received_at": "2026-11-19T21:40:05.412000+00:00",
     "variables": {
       "piston1_act": true,
       "piston2_act": false,
@@ -765,7 +767,7 @@ Ruta: `fixtures/telemetry-INTEGRACION-001.json`.
     "source": "PLC-SIEMENS-01",
     "seq": 1,
     "timestamp": "2026-11-19T21:40:00Z",
-    "received_at": "2026-11-19T21:40:00Z",
+    "received_at": "2026-11-19T21:40:00.385000+00:00",
     "variables": {
       "piston1_act": false,
       "piston2_act": false,
@@ -775,7 +777,7 @@ Ruta: `fixtures/telemetry-INTEGRACION-001.json`.
 ]
 ```
 
-**Advertencia:** `id` y `received_at` son valores de ejemplo. El equipo solo confirmó que los campos existen y los valores de `timestamp`/`seq`/`variables`. No citar este fixture como una captura real de la API.
+**Advertencia:** los valores de `id` y `received_at` fueron proporcionados por el equipo el 2026-11-19 y se reproducen en el fixture. No son una captura HTTP verificada; la validación directa de la API sigue pendiente (AC-11).
 
 ---
 
